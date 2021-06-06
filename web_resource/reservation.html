@@ -8,20 +8,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" 
             integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 
-    <style>
-        .my-footer{
-            background-color: #666;
-            height: 5em;
-            margin-top: 1.5em;
-            padding: 1em;
-            color: #fff;
-            font-size: 12px;
-        }
-        
-        .center-img{
-            width: 50%;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/css/datepicker-bs4.min.css">
+
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
 <!-- partial:index.partial.html -->
@@ -66,28 +55,43 @@
             <div class="col-md-6">
                 <h1 class="mt-5">Search for availibility</h1>
                 
-                <form action="./reservation.html" method="get">
-                    
+<!--
+                <form action="./reservation.html" method="get" class="needs-validation" novalidate>
                     <div class="row mb-3">
                         <div class="col">
                             <div class="form-group mb-3 mt-5">
                                 <label for="start_date" class="form-label">Starting Date</label>
                                 <input required type="date" class="form-control" id="start_date" name="start_date" aria-describedby="startDateHelp">
-<!--                                <div id="startDateHelp" class="form-text">Please enter your starting date in the form of YYYY-MM-DD.</div>-->
                             </div>
                         </div>
                         <div class="col">
                             <div class="form-group mb-3 mt-5">
                                 <label for="end_date" class="form-label">Ending Date</label>
                                 <input required type="date" class="form-control" id="end_date" name="end_date" aria-describedby="endDateHelp">
-<!--                                <div id="endDateHelp" class="form-text">Please enter your ending date in the form of YYYY-MM-DD.</div>-->
                             </div>
                         </div>
 
                     </div>
-                  
-                  <button type="submit" class="btn btn-success mb-5">Search</button>
                 </form>
+-->
+
+                <form action="./reservation.html" method="get" class="needs-validation" novalidate>
+                  <div class="form-row mb-5 mt-5">
+                      <div class="col">
+                          <div class="form-row" id="reservation-dates">
+                            <div class="col">
+                              <input required type="text" class="form-control" name="start" placeholder="Start Date">
+                            </div>
+                            <div class="col">
+                              <input required type="text" class="form-control" name="end" placeholder="Ending Date">  
+                            </div>
+                          </div>
+                      </div>
+                  </div>
+                  <button type="submit" id="btnPrompt" class="btn btn-success mb-5">Search</button>
+                </form>
+                
+<!--                <button class="btn btn-success mb-5" >click me</button>-->
                 
             </div>
         </div>
@@ -108,6 +112,8 @@
 <!-- partial -->
   
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/js/datepicker-full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="./js/script.js"></script>
 </body>
 </html>

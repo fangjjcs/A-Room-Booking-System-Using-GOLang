@@ -1,0 +1,12 @@
+.my-footer{
+    background-color: #666;
+    height: 5em;
+    margin-top: 1.5em;
+    padding: 1em;
+    color: #fff;
+    font-size: 12px;
+}
+
+.center-img{
+    width: 50%;
+}
