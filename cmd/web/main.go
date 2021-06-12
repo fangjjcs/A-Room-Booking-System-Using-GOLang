@@ -12,7 +12,7 @@ import (
 	"github.com/fangjjcs/bookings-app/pkg/render"
 )
 
-const portNumber = ":8080"
+const portNumber = ":8089"
 
 var app config.AppConfig
 var session *scs.SessionManager
@@ -37,14 +37,14 @@ func main() {
 	}
 
 	app.TemplateCache = tc
-	app.UseCache = false
+	app.UseCache = false // define whenever you allow to use cache or not
 
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
 
 	render.NewTemplates(&app)
 
-	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
+	fmt.Printf(fmt.Sprintf("Staring application on port %s", portNumber))
 
 	srv := &http.Server{
 		Addr:    portNumber,
