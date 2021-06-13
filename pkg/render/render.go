@@ -23,6 +23,9 @@ func NewTemplates(a *config.AppConfig) {
 }
 
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
+	td.Flash = app.Session.PopString(r.Context(), "flash") //pop string from session to td.Flash
+	td.Error = app.Session.PopString(r.Context(), "error")
+	td.Warning = app.Session.PopString(r.Context(), "warning")
 	td.CSRFToken = nosurf.Token(r)
 	return td
 }
@@ -45,6 +48,7 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request ,tmpl string, td *mod
 
 	buf := new(bytes.Buffer)
 
+	// Add CSRFToken when loads the page //
 	td = AddDefaultData(td,r)
 
 	_ = t.Execute(buf, td)
@@ -66,7 +70,6 @@ func CreateTemplateCache() (map[string]*template.Template, error) {
 		return myCache, err
 	}
 
-	log.Println(pages)
 	for _, page := range pages {
 		name := filepath.Base(page)
 		ts, err := template.New(name).Funcs(functions).ParseFiles(page)

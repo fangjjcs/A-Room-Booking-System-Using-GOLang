@@ -32,8 +32,15 @@ const rangepicker = new DateRangePicker(elem, {
 let attention = Prompt();
 
 document.getElementById("btnPrompt").addEventListener("click", function(){
-//    attention.toast({msg:"success!"});
-//   
+  // attention.toast({msg:"success!"});
+  // 
+  // Ajax : fetching a Json Object
+  fetch("/search-availability-json")
+    .then(res => res.json())
+    .then(data => {
+      console.log(data);
+    })
+
 })
 
 
@@ -67,3 +74,5 @@ function Prompt() {
       toast: toast,
   }
 }
+
+

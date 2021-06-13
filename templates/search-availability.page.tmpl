@@ -7,7 +7,7 @@
             <div class="col-md-6">
                 <h1 class="mt-5">Search for availibility</h1>
                 <form action="/search-availability" method="post" class="needs-validation" novalidate>
-                  <input type="text" name="csrf_token" value={{.CSRFToken}}>
+                  <input type="hidden" name="csrf_token" value={{.CSRFToken}}>
                   <div class="form-row mb-5 mt-5">
                       <div class="col">
                           <div class="form-row" id="reservation-dates">
@@ -20,9 +20,9 @@
                           </div>
                       </div>
                   </div>
-                  <button type="submit" id="btnPrompt" class="btn btn-success mb-5">Search</button>
+                  <button type="submit" class="btn btn-success mb-5">Search</button>
                 </form>
-             
+                <button id="btnPrompt" class="btn btn-success mb-5">Search</button>
             </div>
         </div>
   
