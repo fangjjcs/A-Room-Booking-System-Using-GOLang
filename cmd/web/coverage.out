@@ -1,0 +1,11 @@
+mode: set
+github.com/fangjjcs/bookings-app/cmd/web/main.go:23.13,27.15 2 0
+github.com/fangjjcs/bookings-app/cmd/web/main.go:31.2,39.16 4 0
+github.com/fangjjcs/bookings-app/cmd/web/main.go:27.15,29.3 1 0
+github.com/fangjjcs/bookings-app/cmd/web/main.go:39.16,41.3 1 0
+github.com/fangjjcs/bookings-app/cmd/web/main.go:44.18,62.16 10 1
+github.com/fangjjcs/bookings-app/cmd/web/main.go:67.2,74.12 6 1
+github.com/fangjjcs/bookings-app/cmd/web/main.go:62.16,65.3 2 0
+github.com/fangjjcs/bookings-app/cmd/web/middleware.go:9.45,19.2 3 1
+github.com/fangjjcs/bookings-app/cmd/web/middleware.go:22.50,24.2 1 1
+github.com/fangjjcs/bookings-app/cmd/web/routes.go:12.49,37.2 18 1
