@@ -8,6 +8,7 @@ import (
 
 	"github.com/fangjjcs/bookings-app/pkg/config"
 	"github.com/fangjjcs/bookings-app/pkg/forms"
+	"github.com/fangjjcs/bookings-app/pkg/helpers"
 	"github.com/fangjjcs/bookings-app/pkg/models"
 	"github.com/fangjjcs/bookings-app/pkg/render"
 )
@@ -34,8 +35,6 @@ func NewHandlers(r *Repository) {
 
 // Home is the handler for the home page
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	remoteIP := r.RemoteAddr
-	m.App.Session.Put(r.Context(), "remote_ip", remoteIP)
 
 	render.RenderTemplate(w, r, "home.page.tmpl", &models.TemplateData{})
 }
@@ -97,7 +96,8 @@ func (m *Repository) JsonSearchAvailability(w http.ResponseWriter, r *http.Reque
 	// JsonResponse -> []byte
 	jsonResult, err := json.MarshalIndent(resp,"","    ")
 	if err != nil {
-		log.Println(err)
+		// log.Println(err)
+		helpers.ServerError(w,err)
 	}
 	log.Println(string(jsonResult))
 	w.Header().Set("Content-Type", "application/json")
@@ -123,7 +123,8 @@ func (m *Repository) MakeReservation(w http.ResponseWriter, r *http.Request) {
 func (m *Repository) PostMakeReservation(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		log.Println(err)
+		// log.Println(err)
+		helpers.ServerError(w,err) //Put error message to helpers and print it
 		return
 	}
 	reservation := models.Reservation{
@@ -169,7 +170,10 @@ func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request){
 	reservation, ok := m.App.Session.Get(r.Context(),"reservation").(models.Reservation)
 	// if there doesn't exist reservation obj in session
 	if !ok {
-		log.Println("Can not get data from the session!")
+		// log.Println("Can not get data from the session!")
+		
+		m.App.ErrorLog.Println("Can't get data from the session!")
+		// For Alertion on the top
 		m.App.Session.Put(r.Context(),"error", "Can not get data from the session!")
 		http.Redirect(w,r,"/",http.StatusTemporaryRedirect)
 		return

@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/fangjjcs/bookings-app/pkg/config"
 	"github.com/fangjjcs/bookings-app/pkg/handlers"
+	"github.com/fangjjcs/bookings-app/pkg/helpers"
 	"github.com/fangjjcs/bookings-app/pkg/models"
 	"github.com/fangjjcs/bookings-app/pkg/render"
 )
@@ -18,6 +20,9 @@ const portNumber = ":8089"
 
 var app config.AppConfig
 var session *scs.SessionManager
+
+var infoLog *log.Logger
+var errorLog *log.Logger
 
 // main is the main function
 func main() {
@@ -28,7 +33,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf(fmt.Sprintf("Staring application on port %s", portNumber))
+	fmt.Printf(fmt.Sprintf("Staring application on port %s\n", portNumber))
 
 	srv := &http.Server{
 		Addr:    portNumber,
@@ -48,6 +53,15 @@ func run() error {
 
 	// change this to true when in production
 	app.InProduction = false
+
+	// log
+	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.InfoLog = infoLog
+	errorLog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errorLog
+
+	// fmt.Println(app.InfoLog)
+	// fmt.Println(app.ErrorLog)
 
 	// set up the session
 	session = scs.New()
@@ -70,6 +84,7 @@ func run() error {
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
 	render.NewTemplates(&app)
+	helpers.NewHelpers(&app)
 
 	return nil
 }
