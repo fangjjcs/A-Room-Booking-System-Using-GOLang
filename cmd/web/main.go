@@ -10,13 +10,14 @@ import (
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/fangjjcs/bookings-app/pkg/config"
+	"github.com/fangjjcs/bookings-app/pkg/driver"
 	"github.com/fangjjcs/bookings-app/pkg/handlers"
 	"github.com/fangjjcs/bookings-app/pkg/helpers"
 	"github.com/fangjjcs/bookings-app/pkg/models"
 	"github.com/fangjjcs/bookings-app/pkg/render"
 )
 
-const portNumber = ":8089"
+const portNumber = ":8080"
 
 var app config.AppConfig
 var session *scs.SessionManager
@@ -28,10 +29,11 @@ var errorLog *log.Logger
 func main() {
 
 	// test run()
-	err := run()
+	db, err := run()
 	if err != nil{
 		log.Fatal(err)
 	}
+	defer db.SQL.Close() 
 
 	fmt.Printf(fmt.Sprintf("Staring application on port %s\n", portNumber))
 
@@ -46,10 +48,14 @@ func main() {
 	}
 }
 
-func run() error {
+func run() (*driver.DB, error) {
 
 	// what am I going to put in the session
 	gob.Register(models.Reservation{})
+	// gob.Register(models.Reservations{})
+	// gob.Register(models.User{})
+	// gob.Register(models.Restrictions{})
+	// gob.Register(models.Room{})
 
 	// change this to true when in production
 	app.InProduction = false
@@ -72,19 +78,28 @@ func run() error {
 
 	app.Session = session
 
+	// connect to database
+	log.Println("Connecting to database...")
+	db, err := driver.ConnectSQL("host=localhost port=5432 dbname=Bookings user=fang password=")
+	if err != nil{
+		log.Fatal("Cannot connect to database")
+	}
+	
+
+
 	tc, err := render.CreateTemplateCache()
 	if err != nil {
 		log.Fatal("cannot create template cache")
-		return err
+		return nil, err
 	}
 
 	app.TemplateCache = tc
 	app.UseCache = false // define whenever you allow to use cache or not
 
-	repo := handlers.NewRepo(&app)
+	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
 	render.NewTemplates(&app)
 	helpers.NewHelpers(&app)
 
-	return nil
+	return db, nil
 }

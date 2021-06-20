@@ -7,10 +7,13 @@ import (
 	"net/http"
 
 	"github.com/fangjjcs/bookings-app/pkg/config"
+	"github.com/fangjjcs/bookings-app/pkg/driver"
 	"github.com/fangjjcs/bookings-app/pkg/forms"
 	"github.com/fangjjcs/bookings-app/pkg/helpers"
 	"github.com/fangjjcs/bookings-app/pkg/models"
 	"github.com/fangjjcs/bookings-app/pkg/render"
+	"github.com/fangjjcs/bookings-app/pkg/repository"
+	"github.com/fangjjcs/bookings-app/pkg/repository/dbrepo"
 )
 
 // Repo the repository used by the handlers
@@ -19,12 +22,14 @@ var Repo *Repository
 // Repository is the repository type
 type Repository struct {
 	App *config.AppConfig
+	DB repository.DatabaseRepo
 }
 
 // NewRepo creates a new repository
-func NewRepo(a *config.AppConfig) *Repository {
+func NewRepo(a *config.AppConfig, db *driver.DB) *Repository {
 	return &Repository{
 		App: a,
+		DB: dbrepo.NewPostgresRepo(db.SQL, a),
 	}
 }
 
@@ -127,7 +132,7 @@ func (m *Repository) PostMakeReservation(w http.ResponseWriter, r *http.Request)
 		helpers.ServerError(w,err) //Put error message to helpers and print it
 		return
 	}
-	reservation := models.Reservation{
+	reservation := models.Reservations{
 		FirstName: r.Form.Get("first_name"),
 		LastName: r.Form.Get("last_name"),
 		Email: r.Form.Get("email"),
