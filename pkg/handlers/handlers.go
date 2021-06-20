@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/fangjjcs/bookings-app/pkg/config"
 	"github.com/fangjjcs/bookings-app/pkg/driver"
@@ -113,7 +115,7 @@ func (m *Repository) JsonSearchAvailability(w http.ResponseWriter, r *http.Reque
 
 // MakeReservation is the handler for the MakeReservation page
 func (m *Repository) MakeReservation(w http.ResponseWriter, r *http.Request) {
-	var emptyReservation models.Reservation;
+	var emptyReservation models.Reservations;
 	data := make(map[string]interface{})
 	data["reservation"] = emptyReservation
 
@@ -132,11 +134,34 @@ func (m *Repository) PostMakeReservation(w http.ResponseWriter, r *http.Request)
 		helpers.ServerError(w,err) //Put error message to helpers and print it
 		return
 	}
+
+	//processing 
+	sd := r.Form.Get("start_date")
+	ed := r.Form.Get("end_date")
+
+	layout := "2006-01-02"
+	startDate, err := time.Parse(layout, sd)
+	if err != nil {
+		helpers.ServerError(w,err)
+	}
+	endDate, err := time.Parse(layout, ed)
+	if err != nil {
+		helpers.ServerError(w,err)
+	}
+
+	roomId,err := strconv.Atoi(r.Form.Get("room_id"))
+	if err != nil{
+		helpers.ServerError(w, err)
+	}
+
 	reservation := models.Reservations{
 		FirstName: r.Form.Get("first_name"),
 		LastName: r.Form.Get("last_name"),
 		Email: r.Form.Get("email"),
 		Phone: r.Form.Get("phone"),
+		StartDate: startDate,
+		EndDate: endDate,
+		RoomID: roomId,
 	}
 
 	// log.Println(r.PostForm)
@@ -156,6 +181,26 @@ func (m *Repository) PostMakeReservation(w http.ResponseWriter, r *http.Request)
 		// log.Println(form)
 		return
 	}
+
+	// Booking by insert Reservation !
+	newReservationID, err := m.DB.InsertReservations(reservation)
+	if err != nil{
+		helpers.ServerError(w,err)
+	}
+
+	// Adding a restriction after a successful booking 
+	restriction := models.RoomRestrictions{
+		StartDate: startDate,
+		EndDate: endDate,
+		RoomID: roomId,
+		ReservationID: newReservationID,
+		RestrictionID: 1,
+	}
+	err = m.DB.InsertRoomRestriction(restriction)
+	if err != nil{
+		helpers.ServerError(w,err)
+	}
+
 	// log.Println(r.Context())
 	m.App.Session.Put(r.Context(),"reservation", reservation)
 	http.Redirect(w,r,"reservation-summary", http.StatusSeeOther)
@@ -172,7 +217,7 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 
 // ReservationSummary Get data from session and load into reservation-summary page
 func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request){
-	reservation, ok := m.App.Session.Get(r.Context(),"reservation").(models.Reservation)
+	reservation, ok := m.App.Session.Get(r.Context(),"reservation").(models.Reservations)
 	// if there doesn't exist reservation obj in session
 	if !ok {
 		// log.Println("Can not get data from the session!")
