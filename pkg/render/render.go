@@ -34,6 +34,7 @@ func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateDa
 func RenderTemplate(w http.ResponseWriter, r *http.Request ,tmpl string, td *models.TemplateData) error {
 	var tc map[string]*template.Template
 	
+	// log.Println("Render when click on url")
 	if app.UseCache {
 		// get the template cache from the app config
 		tc = app.TemplateCache
@@ -49,9 +50,8 @@ func RenderTemplate(w http.ResponseWriter, r *http.Request ,tmpl string, td *mod
 
 	buf := new(bytes.Buffer)
 
-	// Add CSRFToken when loads the page //
+	// Add CSRFToken and session data when loads the page //
 	td = AddDefaultData(td,r)
-
 	_ = t.Execute(buf, td)
 
 	_, err := buf.WriteTo(w)

@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -16,6 +16,7 @@ import (
 	"github.com/fangjjcs/bookings-app/pkg/render"
 	"github.com/fangjjcs/bookings-app/pkg/repository"
 	"github.com/fangjjcs/bookings-app/pkg/repository/dbrepo"
+	"github.com/go-chi/chi"
 )
 
 // Repo the repository used by the handlers
@@ -75,6 +76,7 @@ func (m *Repository) Majors(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, r, "majors.page.tmpl", &models.TemplateData{
 	})
 }
+
 // SearchAvailability is the handler for the about page
 func (m *Repository) SearchAvailability(w http.ResponseWriter, r *http.Request) {
 
@@ -82,11 +84,269 @@ func (m *Repository) SearchAvailability(w http.ResponseWriter, r *http.Request) 
 	render.RenderTemplate(w, r,"search-availability.page.tmpl", &models.TemplateData{
 	})
 }
-// Post : SearchAvailability
+
+// PostSearchAvailability is for "book now" search
 func (m *Repository) PostSearchAvailability(w http.ResponseWriter, r *http.Request) {
+	
 	start := r.Form.Get("start")
 	end := r.Form.Get("end")
-	w.Write([]byte(fmt.Sprintf("Search Availability from %s to %s",start,end)))
+
+	layout := "2006-01-02"
+	startDate, err := time.Parse(layout, start)
+	if err != nil {
+		helpers.ServerError(w,err)
+	}
+	endDate, err := time.Parse(layout, end)
+	if err != nil {
+		helpers.ServerError(w,err)
+	}
+
+	rooms, err := m.DB.SearchAvailibilityForAllRooms(startDate, endDate)
+	if err != nil{
+		helpers.ServerError(w,err)
+		return 
+	}
+
+	for _ , r := range rooms {
+		m.App.InfoLog.Println("ROOM:",r.ID, r.RoomName)
+	}
+
+	if len(rooms)==0{
+		m.App.Session.Put(r.Context(),"error","No Availibility") 
+		http.Redirect(w,r,"search-availability",http.StatusSeeOther)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["rooms"] = rooms
+
+	res := models.Reservations{
+		StartDate: startDate,
+		EndDate: endDate,
+	}
+	// put these information into session in order to make a reservation in other page.
+	m.App.Session.Put(r.Context(),"reservation",res)
+
+	// send data to the template
+	render.RenderTemplate(w, r,"choose-room.page.tmpl", &models.TemplateData{
+		Data: data,
+	})	
+}
+
+// SearchAvailability is the handler for the search-availability page
+func (m *Repository) SearchAvailabilityByRoomID(w http.ResponseWriter, r *http.Request) {
+	
+	roomID, _ := strconv.Atoi(r.Form.Get("room_id")) 
+	roomType := r.Form.Get("room_type")
+
+	room := models.Room{
+		ID: roomID,
+		RoomName: roomType,
+	}
+	data := make(map[string]interface{})
+	data["room"] = room
+	m.App.Session.Put(r.Context(),"Room",room)
+	// send data to the template
+	render.RenderTemplate(w, r,"search-availability.page.tmpl", &models.TemplateData{
+		Data: data,
+	})
+}
+
+func (m *Repository) PostSearchAvailabilityByRoomID(w http.ResponseWriter, r *http.Request) {
+	
+	start := r.Form.Get("start")
+	end := r.Form.Get("end")
+	room, _ := m.App.Session.Get(r.Context(),"Room").(models.Room)
+	layout := "2006-01-02"
+	startDate, err := time.Parse(layout, start)
+	if err != nil {
+		helpers.ServerError(w,err)
+	}
+	endDate, err := time.Parse(layout, end)
+	if err != nil {
+		helpers.ServerError(w,err)
+	}
+
+	available, _ := m.DB.SearchAvailabilityByDatesAndRoomID(startDate, endDate,room.ID)
+	log.Println(available)
+	if !available{
+		// log.Println("here")
+		m.App.Session.Put(r.Context(),"error","Sorry, We don't have available room now.")
+		log.Println(m.App.Session)
+		if room.ID == 1{
+			http.Redirect(w,r,"/generals",http.StatusSeeOther)
+		}else{
+			http.Redirect(w,r,"/majors",http.StatusSeeOther)
+		}
+		
+		return
+	}
+	// log.Println("and here")
+	res := models.Reservations{
+		StartDate: startDate,
+		EndDate: endDate,
+		RoomID: room.ID,
+		Room: room,
+	}
+	
+	// put these information into session in order to make a reservation in other page.
+	m.App.Session.Put(r.Context(),"reservation",res)
+	http.Redirect(w,r,"/make-reservation",http.StatusSeeOther)	
+}
+
+func (m *Repository) ChooseRoom(w http.ResponseWriter, r *http.Request) {
+	
+	// read id from url
+	roomID, err := strconv.Atoi(chi.URLParam(r,"id")) //from url format "/choose-room/{id}"
+	if err != nil {
+		helpers.ServerError(w,err)
+		return
+	}
+	roomType := chi.URLParam(r,"room_name") //from url format "/choose-room/{id}"
+	if err != nil {
+		helpers.ServerError(w,err)
+		return
+	}
+	// Get information from session
+	res, ok := m.App.Session.Get(r.Context(),"reservation").(models.Reservations)
+	if !ok{
+		helpers.ServerError(w,err)
+		return
+	}
+	room := models.Room{
+		RoomName: roomType,
+	}
+	
+	// Add and Put information back into the session
+	res.RoomID = roomID
+	res.Room = room
+	m.App.Session.Put(r.Context(),"reservation", res)
+	http.Redirect(w,r,"/make-reservation",http.StatusSeeOther)
+
+}
+
+// MakeReservation is the handler for the MakeReservation page
+func (m *Repository) MakeReservation(w http.ResponseWriter, r *http.Request) {
+	// Get information from session
+	res, ok := m.App.Session.Get(r.Context(),"reservation").(models.Reservations)
+	if !ok{
+		helpers.ServerError(w,errors.New("Cannot get reservation from session"))
+		return
+	}
+	
+	// Reformat time from GO time format to "YYYY-MM-DD" and display on template instead of displaying time data in reservation
+	sd := res.StartDate.Format("2006-01-02")
+	ed := res.EndDate.Format("2006-01-02")
+	stringMap := make(map[string]string)
+	stringMap["start_date"] = sd
+	stringMap["end_date"] = ed
+
+	data := make(map[string]interface{})
+	data["reservation"] = res
+
+	// send data to the template
+	render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+		Data: data,
+		StringMap: stringMap,
+	})
+}
+
+// PostMakeReservation is the handler for Post the reservation form
+func (m *Repository) PostMakeReservation(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		// log.Println(err)
+		helpers.ServerError(w,err) //Put error message to helpers and print it
+		return
+	}
+
+	reservation, ok := m.App.Session.Get(r.Context(),"reservation").(models.Reservations)
+	if !ok{
+		helpers.ServerError(w,errors.New("Cannot get reservation from session"))
+		return
+	}
+	reservation.FirstName = r.Form.Get("first_name")
+	reservation.LastName = r.Form.Get("last_name")
+	reservation.Phone = r.Form.Get("phone")
+	reservation.Email = r.Form.Get("email")
+	
+	// Check for validation
+	form := forms.New(r.PostForm)
+	form.Required("first_name","last_name","email")
+	form.MinLength("first_name", 3, r)
+	form.IsEmail("email",r)
+
+	if !form.Valid(){
+		data := make(map[string]interface{})
+		data["reservation"] = reservation
+		render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
+			Form: form,
+			Data: data,
+		})
+		return
+	}
+
+	// Booking by insert Reservation !
+	newReservationID, err := m.DB.InsertReservations(reservation)
+	if err != nil{
+		helpers.ServerError(w,err)
+	}
+	// Adding a restriction after a successful booking 
+	restriction := models.RoomRestrictions{
+		StartDate: reservation.StartDate,
+		EndDate: reservation.EndDate,
+		RoomID: reservation.RoomID,
+		ReservationID: newReservationID,
+		RestrictionID: 1, // 1 for reservation
+	}
+	err = m.DB.InsertRoomRestriction(restriction)
+	if err != nil{
+		helpers.ServerError(w,err)
+	}
+
+	// transmit reservation data by session
+	m.App.Session.Put(r.Context(),"reservation", reservation)
+	http.Redirect(w,r,"reservation-summary", http.StatusSeeOther)
+}
+
+// ReservationSummary Get data from session and load into reservation-summary page
+func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request){
+	// get reservation data from a session
+	reservation, ok := m.App.Session.Get(r.Context(),"reservation").(models.Reservations)
+	// if there doesn't exist reservation obj in session
+	if !ok {
+		m.App.ErrorLog.Println("Can't get reservation from the session!")
+		// For Alertion on the top
+		m.App.Session.Put(r.Context(),"error", "Can not get data from the session!")
+		http.Redirect(w,r,"/",http.StatusTemporaryRedirect)
+		return
+	}
+
+	m.App.Session.Remove(r.Context(),"reservation")
+
+	data := make(map[string]interface{})
+	data["reservation"] = reservation
+
+	sd := reservation.StartDate.Format("2006-01-02")
+	ed := reservation.EndDate.Format("2006-01-02")
+	stringMap := make(map[string]string)
+	stringMap["start_date"] = sd
+	stringMap["end_date"] = ed
+
+
+	render.RenderTemplate(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
+		Data: data,
+		StringMap: stringMap,
+	})
+}
+
+// Contact is the handler for the about page
+func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
+
+	// send data to the template
+	render.RenderTemplate(w, r, "contact.page.tmpl", &models.TemplateData{
+	})
 }
 
 // JSON Response
@@ -110,131 +370,4 @@ func (m *Repository) JsonSearchAvailability(w http.ResponseWriter, r *http.Reque
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonResult)
 
-}
-
-
-// MakeReservation is the handler for the MakeReservation page
-func (m *Repository) MakeReservation(w http.ResponseWriter, r *http.Request) {
-	var emptyReservation models.Reservations;
-	data := make(map[string]interface{})
-	data["reservation"] = emptyReservation
-
-	// send data to the template
-	render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
-		Form: forms.New(nil),
-		Data: data,
-	})
-}
-
-// PostMakeReservation is the handler for Post the reservation form
-func (m *Repository) PostMakeReservation(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		// log.Println(err)
-		helpers.ServerError(w,err) //Put error message to helpers and print it
-		return
-	}
-
-	//processing 
-	sd := r.Form.Get("start_date")
-	ed := r.Form.Get("end_date")
-
-	layout := "2006-01-02"
-	startDate, err := time.Parse(layout, sd)
-	if err != nil {
-		helpers.ServerError(w,err)
-	}
-	endDate, err := time.Parse(layout, ed)
-	if err != nil {
-		helpers.ServerError(w,err)
-	}
-
-	roomId,err := strconv.Atoi(r.Form.Get("room_id"))
-	if err != nil{
-		helpers.ServerError(w, err)
-	}
-
-	reservation := models.Reservations{
-		FirstName: r.Form.Get("first_name"),
-		LastName: r.Form.Get("last_name"),
-		Email: r.Form.Get("email"),
-		Phone: r.Form.Get("phone"),
-		StartDate: startDate,
-		EndDate: endDate,
-		RoomID: roomId,
-	}
-
-	// log.Println(r.PostForm)
-	form := forms.New(r.PostForm)
-	// form.Has("first_name", r)
-	form.Required("first_name","last_name","email")
-	form.MinLength("first_name", 3, r)
-	form.IsEmail("email",r)
-
-	if !form.Valid(){
-		data := make(map[string]interface{})
-		data["reservation"] = reservation
-		render.RenderTemplate(w, r, "make-reservation.page.tmpl", &models.TemplateData{
-			Form: form,
-			Data: data,
-		})
-		// log.Println(form)
-		return
-	}
-
-	// Booking by insert Reservation !
-	newReservationID, err := m.DB.InsertReservations(reservation)
-	if err != nil{
-		helpers.ServerError(w,err)
-	}
-
-	// Adding a restriction after a successful booking 
-	restriction := models.RoomRestrictions{
-		StartDate: startDate,
-		EndDate: endDate,
-		RoomID: roomId,
-		ReservationID: newReservationID,
-		RestrictionID: 1,
-	}
-	err = m.DB.InsertRoomRestriction(restriction)
-	if err != nil{
-		helpers.ServerError(w,err)
-	}
-
-	// log.Println(r.Context())
-	m.App.Session.Put(r.Context(),"reservation", reservation)
-	http.Redirect(w,r,"reservation-summary", http.StatusSeeOther)
-}
-
-// Contact is the handler for the about page
-func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
-
-	// send data to the template
-	render.RenderTemplate(w, r, "contact.page.tmpl", &models.TemplateData{
-	})
-}
-
-
-// ReservationSummary Get data from session and load into reservation-summary page
-func (m *Repository) ReservationSummary(w http.ResponseWriter, r *http.Request){
-	reservation, ok := m.App.Session.Get(r.Context(),"reservation").(models.Reservations)
-	// if there doesn't exist reservation obj in session
-	if !ok {
-		// log.Println("Can not get data from the session!")
-		
-		m.App.ErrorLog.Println("Can't get data from the session!")
-		// For Alertion on the top
-		m.App.Session.Put(r.Context(),"error", "Can not get data from the session!")
-		http.Redirect(w,r,"/",http.StatusTemporaryRedirect)
-		return
-	}
-
-	m.App.Session.Remove(r.Context(),"reservation")
-
-	data := make(map[string]interface{})
-	data["reservation"] = reservation
-
-	render.RenderTemplate(w, r, "reservation-summary.page.tmpl", &models.TemplateData{
-		Data: data,
-	})
 }

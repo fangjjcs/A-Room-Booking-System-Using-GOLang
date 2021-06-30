@@ -16,7 +16,13 @@
         </div>
         <div class="row">
             <div class="col text-center mt-3 mb-5">
-                <a href="/search-availability" class="btn btn-success">Check Availibility</a>
+                {{/* <a href="/search-availability" class="btn btn-success">Check Availibility</a> */}}
+                <form action="/search-availability-id" method="post">
+                  <input type="hidden" name="csrf_token" value={{.CSRFToken}}>
+                  <input type="hidden" name="room_id" value=2>
+                  <input type="hidden" name="room_type" value="majors suite">
+                  <button type="submit" class="btn btn-success mb-5">Check Availibility</button>
+                </form>
             </div>
         </div>
     </div>

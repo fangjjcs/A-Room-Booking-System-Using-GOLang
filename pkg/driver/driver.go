@@ -16,6 +16,7 @@ type DB struct{
 
 var dbConn = &DB{}
 
+
 const maxOpenDbConn = 10
 const maxIdelDbConn = 5
 const maxDbLiveConn = 5* time.Minute
@@ -26,7 +27,7 @@ func ConnectSQL(dsn string) (*DB, error){
 	if err != nil{
 		panic(err)
 	}
-
+	// Limitation of db connection (pool)
 	d.SetConnMaxIdleTime(maxOpenDbConn)
 	d.SetConnMaxIdleTime(maxIdelDbConn)
 	d.SetConnMaxLifetime(maxDbLiveConn)
@@ -39,7 +40,7 @@ func ConnectSQL(dsn string) (*DB, error){
 	return dbConn, nil
 }
 
-// tries to ping database
+// try to ping database
 func testDB(d *sql.DB) error {
 	err := d.Ping()
 	if err!=nil{

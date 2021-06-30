@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanillajs-datepicker@1.1.4/dist/css/datepicker-bs4.min.css">
         <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous" />
-        <link rel="stylesheet" href="/static/css/style.css">
+        <link rel="stylesheet" href="./static/css/style.css">
     </head>
     <body>
     <!-- partial:index.partial.html -->
@@ -38,7 +38,7 @@
                     </ul>
                     </li>
                     <li class="nav-item">
-                    <a class="nav-link" href="/make-reservation" tabindex="-1" aria-disabled="true">Book Now</a>
+                    <a class="nav-link" href="/search-availability" tabindex="-1" aria-disabled="true">Book Now</a>
                     </li>
                     <li class="nav-item">
                     <a class="nav-link" href="/contact" tabindex="-1" aria-disabled="true">Contact</a>
@@ -52,14 +52,17 @@
 
     {{end}}
     <div class="row my-footer">
-        <div class="col">
-            left
+        <div class="row head-box">
+            <div class="col sm-3">
+                <p class="head-text-style">Follow Life at Google on</p>
+            </div>
         </div>
-        <div class="col">
-            middle
-        </div>
-        <div class="col">
-            right
+        <hr style="height: 0.01em;">
+        <div class="row">
+            <div class="col sm-3 footer-box">
+                <p class="head-text-style">@ Information</p>
+
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
@@ -79,6 +82,7 @@
         }
 
         {{with .Error}}
+            console.log({{.}})
             notify({{.}}, "error")
         {{end}}
     

@@ -17,7 +17,7 @@ import (
 	"github.com/fangjjcs/bookings-app/pkg/render"
 )
 
-const portNumber = ":8080"
+const portNumber = ":8088"
 
 var app config.AppConfig
 var session *scs.SessionManager
@@ -52,7 +52,6 @@ func run() (*driver.DB, error) {
 
 	// what am I going to put in the session
 	gob.Register(models.Reservations{})
-	// gob.Register(models.Reservations{})
 	gob.Register(models.User{})
 	gob.Register(models.Restrictions{})
 	gob.Register(models.Room{})

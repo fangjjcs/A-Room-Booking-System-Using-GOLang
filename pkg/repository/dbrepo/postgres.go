@@ -2,6 +2,7 @@ package dbrepo
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/fangjjcs/bookings-app/pkg/models"
@@ -65,22 +66,54 @@ func (m *postgresDBRepo) InsertRoomRestriction(res models.RoomRestrictions) erro
 
 
 // Search Availability
-func (m *postgresDBRepo) SearchAvailabilityByDate(start, end time.Time, roomID int) (bool,error) {
+func (m *postgresDBRepo) SearchAvailabilityByDatesAndRoomID(start, end time.Time, roomID int) (bool,error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	log.Println(start,end, roomID)
 	var count int
 	stmt := `select count(id) from room_restrictions where
 	        $1 < end_date and $2 > start_date and room_id = $3;`
 	
-	err := m.DB.QueryRowContext(ctx, stmt,start,end, roomID).Scan(&count)
+	err := m.DB.QueryRowContext(ctx, stmt , start, end, roomID).Scan(&count)
 	if err!=nil{
 		return false, err
 	}
 
+	log.Println(count)
 	// assumes there exists only 1 room
 	if count == 0 {
 		return true, nil
 	}
 	return false, nil
+}
+
+
+func (m *postgresDBRepo) SearchAvailibilityForAllRooms(start, end time.Time) ([]models.Room, error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var rooms []models.Room
+	query :=`
+	select
+		r.id, r.room_name
+	from
+		rooms r 
+	where r.id not in 
+		(select rr.room_id from room_restrictions rr where rr.start_date <$2 and rr.end_date>$1)
+		`
+	rows, err := m.DB.QueryContext(ctx,query,start,end)
+	if err != nil{
+		return nil, err
+	}
+	var room models.Room
+	for rows.Next(){
+		err := rows.Scan(&room.ID,&room.RoomName)
+		if err!= nil{
+			return nil, err
+		}
+		rooms = append(rooms, room)
+	}
+
+	return rooms, nil
 }

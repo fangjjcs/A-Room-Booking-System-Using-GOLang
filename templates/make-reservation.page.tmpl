@@ -4,11 +4,59 @@
 <div class="container">
       <div class="row">
         <div class="col-md-6">
-          <h1 class="mt-5">Make Reservation</h1>
+          <h1 class="mt-5 mb-3">Make Reservation</h1>
 
           {{$res := index .Data "reservation"}}
           <form method="post" action="make-reservation" /*class="needs-validation"*/ novalidate>
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            {{/* <div class="form-row mb-5">
+                    <div class="col-sd-2">
+                        <button class="btn btn-success">{{index .StringMap "room_type"}}</button>
+                    </div>
+            </div> */}}
+            <div class="form-group">
+              <label for="room_type">Room Type: </label>
+              <input
+                readonly
+                class="form-control"
+                id="room_type"
+                type="text"
+                name="room_type"
+                value="{{$res.Room.RoomName}}"
+              />
+            </div>
+            <div class="form-group">
+              <label for="start_date">Start Date:</label>
+              <input
+                readonly
+                class="form-control"
+                id="start_date"
+                type="text"
+                name="start_date"
+                value="{{index .StringMap "start_date"}}"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="end_date">End Date:</label>
+              <input
+                readonly
+                class="form-control"
+                id="end_date"
+                type="text"
+                name="end_date"
+                value="{{index .StringMap "end_date"}}"
+              />
+            </div>
+            <input
+              type="hidden"
+              class="form-control"
+                id="room_id"
+                autocomplete="off"
+                type="text"
+                name="room_id"
+                value="{{$res.RoomID}}"
+            />
             <div class="form-group mt-5">
               <label for="first_name">First Name:</label>
               {{with .Form.Error.Get "first_name"}}
@@ -69,40 +117,6 @@
                 value="{{$res.Phone}}"
               />
             </div>
-
-            <div class="form-group">
-              <label for="start_date">Start Date:</label>
-              <input
-                required
-                class="form-control"
-                id="start_date"
-                autocomplete="off"
-                type="text"
-                name="start_date"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="end_date">End Date:</label>
-              <input
-                required
-                class="form-control"
-                id="end_date"
-                autocomplete="off"
-                type="text"
-                name="end_date"
-              />
-            </div>
-            <input
-              type="hidden"
-              class="form-control"
-                id="room_id"
-                autocomplete="off"
-                type="text"
-                name="room_id"
-              value="1"
-            />
-
             <input
               type="submit"
               class="btn btn-success mt-5 mb-5"

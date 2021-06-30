@@ -1,12 +1,32 @@
-.my-footer{
-    background-color: #666;
-    height: 5em;
-    margin-top: 1.5em;
-    padding: 1em;
-    color: #fff;
-    font-size: 12px;
+.container{
+    min-height: 500px;
+    width: 100%;
 }
 
+.my-footer{
+    background-color: #f8f9fa;
+    height: 20em;
+    margin-top: 5em;
+    padding: 3em;
+    color: rgb(126, 126, 126);
+    /* font-size: 12px; */
+}
+
+.footer-box{
+    /* border: solid 1px red; */
+    /* text-align: center; */
+}
+
+.head-box{
+    height: 0px;
+}
+.head-text-style{
+    height: fit-content;
+    padding-bottom: 0em;
+}
+.text-style{
+    font-size: 12px;
+}
 .center-img{
     width: 50%;
 }

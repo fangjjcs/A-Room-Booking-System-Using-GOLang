@@ -25,11 +25,12 @@ var forms = document.querySelectorAll(".needs-validation");
 const elem = document.getElementById("reservation-dates");
 const rangepicker = new DateRangePicker(elem, {
   format: "yyyy-mm-dd",
+  minDate: new Date(),
 });
 
 
 
-let attention = Prompt();
+
 
 document.getElementById("btnPrompt").addEventListener("click", function(){
   // attention.toast({msg:"success!"});
@@ -43,6 +44,7 @@ document.getElementById("btnPrompt").addEventListener("click", function(){
 
 })
 
+let attention = Prompt();
 
 function Prompt() {
   let toast = function (c) {

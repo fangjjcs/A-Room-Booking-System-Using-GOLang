@@ -2,13 +2,12 @@ package models
 
 import "time"
 
-type Reservation struct{
-	FirstName string
-	LastName string			
-	Email string
-	Phone string
-}
-
+// type Reservation struct{
+// 	FirstName string
+// 	LastName string
+// 	Email string
+// 	Phone string
+// }
 
 // User is the user model
 type User struct {
