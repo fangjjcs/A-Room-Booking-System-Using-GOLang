@@ -20,5 +20,5 @@ brew services start mailhog
 
 start web server
 ```bash=
-./run.sh
+go build -o bookings cmd/web/*.go && ./bookings
 ```
