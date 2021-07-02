@@ -3,6 +3,9 @@
     width: 100%;
 }
 
+.no-gutters{
+    margin-top: 30px;
+}
 .my-footer{
     background-color: #f8f9fa;
     height: 20em;
@@ -12,10 +15,7 @@
     /* font-size: 12px; */
 }
 
-.footer-box{
-    /* border: solid 1px red; */
-    /* text-align: center; */
-}
+
 
 .head-box{
     height: 0px;
@@ -32,5 +32,8 @@
 }
 
 .notie-container{
-    font-size:1rem;
+    height: 2rem;
+    text-align: center;
+    line-height: 0.1rem;
+    font-size: 1rem;
 }

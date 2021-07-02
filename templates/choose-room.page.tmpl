@@ -2,15 +2,17 @@
 
 {{define "content"}}
     <div class="container">
-        <div class="row">
-            <div class="col">
-                <h1 class="mt-5 mb-5">Choose a Room</h1>
+        <div class="row justify-content-center mt-5">
+            <div class="col-4 mt-5">
+                <h1 class="col mt-5 mb-5" style="text-align: center;">Choose a Room</h1>
                 {{$room := index .Data "rooms"}}
-                <ul>
+                <div class="col d-grid gap-1 col-10 mx-auto">
                 {{range $room}}
-                    <li><a href="/choose-room/{{.ID}}-{{.RoomName}}">{{.RoomName}}</a></li>
+                    <a class="btn btn-primary" href="/choose-room/{{.ID}}-{{.RoomName}}" role="button">{{.RoomName}}</a>
+                    {{/* <li><a href="/choose-room/{{.ID}}-{{.RoomName}}">{{.RoomName}}</a></li> */}}
                 {{end}}
-                </ul>
+                </div>
+                {{/* </ul> */}}
             </div>
         </div>
     </div>

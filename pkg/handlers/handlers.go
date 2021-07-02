@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -230,7 +231,7 @@ func (m *Repository) MakeReservation(w http.ResponseWriter, r *http.Request) {
 	// Get information from session
 	res, ok := m.App.Session.Get(r.Context(),"reservation").(models.Reservations)
 	if !ok{
-		helpers.ServerError(w,errors.New("Cannot get reservation from session"))
+		helpers.ServerError(w,errors.New("cannot get reservation from session"))
 		return
 	}
 	
@@ -263,7 +264,7 @@ func (m *Repository) PostMakeReservation(w http.ResponseWriter, r *http.Request)
 
 	reservation, ok := m.App.Session.Get(r.Context(),"reservation").(models.Reservations)
 	if !ok{
-		helpers.ServerError(w,errors.New("Cannot get reservation from session"))
+		helpers.ServerError(w,errors.New("cannot get reservation from session"))
 		return
 	}
 	reservation.FirstName = r.Form.Get("first_name")
@@ -304,6 +305,25 @@ func (m *Repository) PostMakeReservation(w http.ResponseWriter, r *http.Request)
 	if err != nil{
 		helpers.ServerError(w,err)
 	}
+
+
+	// Build-up Confirm e-mail
+	mailMsg := fmt.Sprintf(`
+	 	<strong>Reservation Confirmation</strong><br>
+		 <br>
+		 Dear %s, <br>
+		 This is a confirmation for your reservation from %s to %s.
+	`,reservation.FirstName,reservation.StartDate.Format("2006-01-02"),reservation.EndDate.Format("2006-01-02"))
+
+	msg := models.MailData{
+		To: reservation.Email,
+		From: "server@booking.com",
+		Subject: "Reservation Confirmation",
+		Content: mailMsg,
+	}
+	// Put msg in the channel
+	m.App.MailChan <- msg
+
 
 	// transmit reservation data by session
 	m.App.Session.Put(r.Context(),"reservation", reservation)

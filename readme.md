@@ -6,3 +6,9 @@ This is a repository for my bookings and reservation project.
 - Uses the [chi routing](https://github.com/go-chi/chi)
 - Uses [Alex Edwards SCS session](https://github.com/alexedwards/scs/v2) management
 - Uses [nosurf](https://github.com/justinas/nosurf)
+
+
+start mail server
+```bash=
+brew services start mailhog
+```
