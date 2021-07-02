@@ -1,4 +1,3 @@
-.gitignore
 database.yml
 .DS_Store
 bookings
