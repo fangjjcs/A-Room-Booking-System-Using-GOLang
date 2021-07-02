@@ -14,3 +14,10 @@ start mail server
 ```bash=
 brew services start mailhog
 ```
+
+</br>
+
+start web server
+```bash=
+./run.sh
+```
