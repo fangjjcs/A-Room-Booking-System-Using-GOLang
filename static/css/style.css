@@ -41,3 +41,11 @@
 .mt-6 {
     margin-top: 4rem !important;
   }
+
+.pic-bd{
+    border: solid 1px;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 50%;
+    overflow: hidden;
+}

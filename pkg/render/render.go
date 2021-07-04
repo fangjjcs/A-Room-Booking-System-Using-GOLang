@@ -7,19 +7,27 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/fangjjcs/bookings-app/pkg/config"
 	"github.com/fangjjcs/bookings-app/pkg/models"
 	"github.com/justinas/nosurf"
 )
 
-var functions = template.FuncMap{}
+var functions = template.FuncMap{
+	"humanDate": HumanDate,
+}
 var app *config.AppConfig
 var pathToTemplates = "./templates"
 
 // NewTemplates sets the config for the template package
 func NewTemplates(a *config.AppConfig) {
 	app = a
+}
+
+// convert GO time to human friendly time string
+func HumanDate(t time.Time) string{
+	return t.Format("2006-01-02")
 }
 
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {
