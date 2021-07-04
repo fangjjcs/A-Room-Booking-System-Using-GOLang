@@ -2,10 +2,12 @@ package dbrepo
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
 	"github.com/fangjjcs/bookings-app/pkg/models"
+	"golang.org/x/crypto/bcrypt"
 )
 func (m *postgresDBRepo) AllUsers() bool{
 	return true
@@ -116,4 +118,65 @@ func (m *postgresDBRepo) SearchAvailibilityForAllRooms(start, end time.Time) ([]
 	}
 
 	return rooms, nil
+}
+
+// Get user information by user ID
+func (m *postgresDBRepo) GetUserByID(id int) (models.User, error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `select id, first_name, last_name, email, password, access_level created_at, updated_at,
+				from users where id=$1`
+	
+	row := m.DB.QueryRowContext(ctx, query, id)
+
+	var u models.User
+	err := row.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.Password, &u.AccessLevel, &u.CreatedAt, &u.UpdatedAt)
+	if err != nil{
+		return u, err
+	}
+	return u, nil
+}
+
+// Update user information
+func (m *postgresDBRepo) UpdateUser(u models.User) (error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `update users set first_name=$1, last_name=$2, email=$3, access_level=$4, updated_at=$5`
+	
+	_, err := m.DB.ExecContext(ctx, query,u.FirstName,u.LastName,u.Email,u.AccessLevel,time.Now())
+	if err != nil{
+		return err
+	}
+
+	return nil
+}
+
+// Get user id by login info
+func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var id int
+	var hashedPassword string
+
+	// to see if this user exist in db or not
+	query := `select id, password from users where email=$1`
+	row := m.DB.QueryRowContext(ctx, query, email)
+	err := row.Scan(&id, &hashedPassword)
+	if err != nil{
+		return id, hashedPassword, err
+	}
+
+	// compare password
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword),[]byte(testPassword))
+	if err == bcrypt.ErrMismatchedHashAndPassword{
+		return 0, "", errors.New("Incorrect Password")
+	}else if err != nil{
+		return 0, "", err
+	}
+
+	return id, hashedPassword, nil
+
 }

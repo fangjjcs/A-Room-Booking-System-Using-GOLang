@@ -369,6 +369,87 @@ func (m *Repository) Contact(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Login page
+func (m *Repository) Login(w http.ResponseWriter, r *http.Request) {
+	render.RenderTemplate(w, r, "login.page.tmpl", &models.TemplateData{
+		Form: forms.New(nil),
+	})
+}
+
+// Handles the Login
+func (m *Repository) PostLogin(w http.ResponseWriter, r *http.Request) {
+	//whenever doing a login/logout => renew a token
+	_ = m.App.Session.RenewToken(r.Context())
+
+	err:= r.ParseForm()
+	if err != nil{
+		log.Println(err)
+	}
+
+	
+	email := r.Form.Get("email")
+	password := r.Form.Get("password")
+
+	// validation
+	form := forms.New(r.PostForm)
+	form.Required("email","password")
+	form.IsEmail("email",r)
+
+	if !form.Valid(){
+		// rerender the login page
+		render.RenderTemplate(w, r, "login.page.tmpl", &models.TemplateData{
+			Form: form,
+		})
+		return
+	}
+
+	id, _, err := m.DB.Authenticate(email,password)
+	// Login Failed
+	if err != nil{
+		log.Println(err)
+		m.App.Session.Put(r.Context(),"error","Invalid login credentials")
+		http.Redirect(w, r, "/user/login",http.StatusSeeOther)
+		return
+	}
+	// Login successfully
+	m.App.Session.Put(r.Context(),"user_id", id)
+	m.App.Session.Put(r.Context(),"flash","Login Successfully")
+	http.Redirect(w,r,"/",http.StatusSeeOther)
+}
+
+// Log out
+func (m *Repository) Logout(w http.ResponseWriter, r *http.Request){
+
+	_ = m.App.Session.Destroy(r.Context())
+	_ = m.App.Session.RenewToken(r.Context())
+
+	http.Redirect(w,r,"/",http.StatusSeeOther)
+	m.App.Session.Put(r.Context(),"flash","Logout Successfully")
+
+
+}
+
+//
+func (m *Repository) AdminDashboard(w http.ResponseWriter, r *http.Request){
+	render.RenderTemplate(w,r,"admin-dashboard.page.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) AdminNewReservation(w http.ResponseWriter, r *http.Request){
+	render.RenderTemplate(w,r,"admin-new-reservations.page.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) AdminAllReservation(w http.ResponseWriter, r *http.Request){
+	render.RenderTemplate(w,r,"admin-all-reservations.page.tmpl", &models.TemplateData{})
+}
+
+func (m *Repository) AdminReservationCalendar(w http.ResponseWriter, r *http.Request){
+	render.RenderTemplate(w,r,"admin-reservations-calendar.page.tmpl", &models.TemplateData{})
+}
+
+
+
+
+
 // JSON Response
 type JsonResponse struct{
 	STATUS    bool `json:"result"`

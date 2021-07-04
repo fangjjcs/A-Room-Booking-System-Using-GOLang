@@ -37,3 +37,7 @@
     line-height: 0.1rem;
     font-size: 1rem;
 }
+
+.mt-6 {
+    margin-top: 4rem !important;
+  }

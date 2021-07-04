@@ -64,9 +64,7 @@ func run() (*driver.DB, error) {
 	mailChan := make(chan models.MailData)
 	app.MailChan = mailChan
 
-	// change this to true when in production
-	app.InProduction = false
-
+	
 	// log
 	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
 	app.InfoLog = infoLog
@@ -98,7 +96,8 @@ func run() (*driver.DB, error) {
 	}
 
 	app.TemplateCache = tc
-	app.UseCache = false // define whenever you allow to use cache or not
+	app.InProduction = true // change this to true when in production
+	app.UseCache = true // define whenever you allow to use cache or not
 
 	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)

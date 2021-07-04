@@ -1,0 +1,47 @@
+{{template "base" .}}
+
+{{define "content"}}
+<div class="container ">
+  
+  <div class="row justify-content-center mt-5"></div>
+  <div class="row justify-content-center mt-5">
+    <div class="col-md-5 ">
+      <h1 class="mt-5">Log In </h1>
+      <form method="post" action="/user/login" class="needs-validation" novalidate>
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">  
+        <div class="form-group mt-5">
+            <div class="input-group">
+                <label class="col-sm-3 input-group-text bg-dark text-light " for="email">Email</label>
+                {{with .Form.Error.Get "email"}}
+                <label class="text-danger">{{.}}</label>
+                {{end}}
+                <input
+                required class="form-control {{with .Form.Error.Get "email"}} is-invalid {{end}}"
+                id="email" autocomplete="off"
+                type="email" name="email"
+                value="" 
+                />
+            </div>
+        </div>
+        <div class="form-group ">
+            <div class="input-group">
+                <label class="col-sm-3 input-group-text bg-dark text-light" for="password">Password</label>
+                {{with .Form.Error.Get "password"}}
+                <label class="text-danger">{{.}}</label>
+                {{end}}
+                <input
+                required class="form-control {{with .Form.Error.Get "password"}} is-invalid {{end}}"
+                id="password" autocomplete="off"
+                type="password" name="password"
+                value="" 
+                />
+            </div>
+        </div>
+
+        <input type="submit" class="btn btn-success mt-3 mb-5 w-100" value="Login"/>
+      </form>
+    </div>
+ 
+  </div>
+</div>
+{{end}}
