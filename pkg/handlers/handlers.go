@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/fangjjcs/bookings-app/pkg/config"
@@ -434,8 +435,19 @@ func (m *Repository) AdminDashboard(w http.ResponseWriter, r *http.Request){
 	render.RenderTemplate(w,r,"admin-dashboard.page.tmpl", &models.TemplateData{})
 }
 
+// Get All New Reservations in admin tool
 func (m *Repository) AdminNewReservation(w http.ResponseWriter, r *http.Request){
-	render.RenderTemplate(w,r,"admin-new-reservations.page.tmpl", &models.TemplateData{})
+	reservations, err := m.DB.AllNewReservations()
+	if err != nil{
+		helpers.ServerError(w,err)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["reservations"] = reservations
+	render.RenderTemplate(w,r,"admin-new-reservations.page.tmpl", &models.TemplateData{
+		Data: data,
+	})
 }
 
 func (m *Repository) AdminAllReservation(w http.ResponseWriter, r *http.Request){
@@ -449,6 +461,38 @@ func (m *Repository) AdminAllReservation(w http.ResponseWriter, r *http.Request)
 	data["reservations"] = reservations
 	render.RenderTemplate(w,r,"admin-all-reservations.page.tmpl", &models.TemplateData{
 		Data: data,
+	})
+}
+
+// Show the reservation detail in the admin tool
+func (m *Repository) AdminShowReservation(w http.ResponseWriter, r *http.Request){
+	
+	//Get reservation from db
+	exploded := strings.Split(r.RequestURI,"/")
+	
+	id, err := strconv.Atoi(exploded[4])
+	if err != nil{
+		helpers.ServerError(w,err)
+		return
+	}
+	
+	src := exploded[3]
+	stringMap := make(map[string]string)
+	stringMap["src"] = src
+
+	reservation, err := m.DB.GetReservationByID(id)
+	if err != nil{
+		helpers.ServerError(w,err)
+		return
+	}
+
+	data := make(map[string]interface{})
+	data["reservation"] = reservation
+
+	render.RenderTemplate(w,r,"admin-reservation-show.page.tmpl", &models.TemplateData{
+		Data: data,
+		StringMap: stringMap,
+		Form: forms.New(nil),
 	})
 }
 

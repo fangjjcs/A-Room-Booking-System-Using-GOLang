@@ -1,11 +1,65 @@
 {{template "admin" .}}
 
+{{define "css"}}
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
+{{end}}
+
 {{define "page-title"}}
     New Reservations
 {{end}}
 
 {{define "content"}}
     <div class="col-md-12">
-        New reservations content
+        {{$res := index .Data "reservations"}}
+
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Reservation Information</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="new-res">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Last Name</th>
+                                    <th>Room</th>
+                                    <th>Arrival</th>
+                                    <th>Departure</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{range $res}}
+                                <tr>
+                                    <td>{{.ID}}</td>
+                                    <td>
+                                        <a href="/admin/reservations/new/{{.ID}}">
+                                        {{.LastName}}
+                                        </a>
+                                    </td>
+                                    <td>{{.Room.RoomName}}</td>
+                                    <td class="text-success"><i class="ti-time"></i> {{humanDate .StartDate}}</td>
+                                    <td class="text-success"><i class="ti-time"></i> {{humanDate .EndDate}}</td>
+                                    
+                                </tr>
+                                {{end}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+                      
+        
     </div>
+{{end}}
+
+{{define "js"}}
+    <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+    <script>
+        const dataTable = new simpleDatatables.DataTable("#new-res", {
+	        searchable: false,
+	        fixedHeight: true,
+        })
+    </script>
+
 {{end}}

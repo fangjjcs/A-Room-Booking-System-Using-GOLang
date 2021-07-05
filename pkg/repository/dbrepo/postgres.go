@@ -211,3 +211,65 @@ func (m *postgresDBRepo) AllReservations() ([]models.Reservations, error){
 	}
 	return reservations, nil
 }
+
+
+// Admin - returns a slice of all NEW(processed=0) reservations
+func (m *postgresDBRepo) AllNewReservations() ([]models.Reservations, error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var reservations []models.Reservations
+
+	query := ` select r.id, r.first_name, r.last_name, r.email, r.phone, r.start_date,
+				r.end_date, r.room_id, r.created_at, r.updated_at,r.processed, rm.id, rm.room_name
+				from reservations r
+				left join rooms rm on (r.room_id = rm.id)
+				where processed = 0
+				order by r.start_date asc`
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return reservations, err
+	}
+	defer rows.Close()
+	
+	for rows.Next(){
+		var item models.Reservations
+		err := rows.Scan(&item.ID,&item.FirstName,&item.LastName,&item.Email,&item.Phone,&item.StartDate,
+			&item.EndDate,&item.RoomID,&item.CreatedAt,&item.UpdatedAt,&item.Processed,&item.Room.ID,&item.Room.RoomName)
+		if err != nil{
+			return reservations, err
+		}
+		reservations = append(reservations, item)
+	}
+	return reservations, nil
+}
+
+
+//Return one reservation detail by ID
+func (m *postgresDBRepo) GetReservationByID(id int) (models.Reservations, error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var res models.Reservations
+
+	query := `
+		select r.id, r.first_name, r.last_name, r.email, r.phone, r.start_date,
+		r.end_date, r.room_id, r.created_at, r.updated_at, r.processed, rm.id, rm.room_name
+		from reservations r
+		left join rooms rm on (r.room_id = rm.id )
+		where r.id = $1
+	`
+	row := m.DB.QueryRowContext(ctx, query, id )
+	err := row.Scan(
+		&res.ID,&res.FirstName,&res.LastName,&res.Email,&res.Phone,&res.StartDate,
+		&res.EndDate,&res.RoomID,&res.CreatedAt,&res.UpdatedAt,&res.Processed,
+		&res.Room.ID,&res.Room.RoomName,
+	)
+	if err != nil {
+		return res, err
+	}
+
+	return res, nil
+
+}

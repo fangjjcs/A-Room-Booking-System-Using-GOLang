@@ -8,7 +8,7 @@
                 {{$room := index .Data "rooms"}}
                 <div class="col d-grid gap-1 col-10 mx-auto">
                 {{range $room}}
-                    <a class="btn btn-primary" href="/choose-room/{{.ID}}-{{.RoomName}}" role="button">{{.RoomName}}</a>
+                    <a class="btn btn-success" href="/choose-room/{{.ID}}-{{.RoomName}}" role="button">{{.RoomName}}</a>
                     {{/* <li><a href="/choose-room/{{.ID}}-{{.RoomName}}">{{.RoomName}}</a></li> */}}
                 {{end}}
                 </div>
@@ -17,3 +17,7 @@
         </div>
     </div>
 {{end}}
+
+<div class="footer-pic fixed-bottom">
+  <img src="/static/images/bg-pic-simple.png" class="d-block w-100" alt="tray">
+</div>
