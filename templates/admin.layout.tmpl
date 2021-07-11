@@ -10,11 +10,13 @@
         <!-- plugins:css -->
         <link rel="stylesheet" href="/static/admin/vendors/ti-icons/css/themify-icons.css">
         <link rel="stylesheet" href="/static/admin/vendors/base/vendor.bundle.base.css">
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/notie/dist/notie.min.css">
         <!-- endinject -->
         <!-- plugin css for this page -->
         <!-- End plugin css for this page -->
         <!-- inject:css -->
         <link rel="stylesheet" href="/static/admin/css/style.css">
+        <link rel="stylesheet" href="/static/css/style.css">
         <!-- endinject -->
         <link rel="shortcut icon" href="/static/admin/images/favicon.png"/>
 
@@ -130,14 +132,37 @@
     <script src="/static/admin/js/hoverable-collapse.js"></script>
     <script src="/static/admin/js/template.js"></script>
     <script src="/static/admin/js/todolist.js"></script>
+    <script src="https://unpkg.com/notie"></script>
     <!-- endinject -->
     <!-- Custom js for this page-->
     <script src="/static/admin/js/dashboard.js"></script>
+    <script src="/static/js/script.js"></script>
     <!-- End custom js for this page-->
+
 
     {{block "js" . }}
 
     {{end}}
+    <script>
+        function notify(msg, msgType){
+            notie.alert({
+                type: msgType, 
+                text: msg,
+                position: 'bottom'
+            })
+        }
+
+        {{with .Error}}
+            console.log({{.}})
+            notify({{.}}, "error")
+        {{end}}
+
+        {{with .Flash}}
+            console.log({{.}})
+            notify({{.}}, "success")
+        {{end}}
+    
+    </script>
     </body>
 
     </html>

@@ -3,7 +3,6 @@ package dbrepo
 import (
 	"context"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/fangjjcs/bookings-app/pkg/models"
@@ -72,7 +71,7 @@ func (m *postgresDBRepo) SearchAvailabilityByDatesAndRoomID(start, end time.Time
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	log.Println(start,end, roomID)
+	// log.Println(start,end, roomID)
 	var count int
 	stmt := `select count(id) from room_restrictions where
 	        $1 < end_date and $2 > start_date and room_id = $3;`
@@ -82,7 +81,7 @@ func (m *postgresDBRepo) SearchAvailabilityByDatesAndRoomID(start, end time.Time
 		return false, err
 	}
 
-	log.Println(count)
+	// log.Println(count)
 	// assumes there exists only 1 room
 	if count == 0 {
 		return true, nil
@@ -271,5 +270,54 @@ func (m *postgresDBRepo) GetReservationByID(id int) (models.Reservations, error)
 	}
 
 	return res, nil
+
+}
+
+// update a reservation
+func (m *postgresDBRepo) UpdateReservation(u models.Reservations, id int) (error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `update reservations set first_name=$1, last_name=$2, email=$3, phone=$4, updated_at=$5
+				where id = $6`
+	
+	_, err := m.DB.ExecContext(ctx, query,u.FirstName,u.LastName,u.Email,u.Phone,time.Now(),id)
+	if err != nil{
+		return err
+	}
+
+	return nil
+
+}
+
+// delete a rerservation
+func (m *postgresDBRepo) DeleteReservation(id int) (error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `delete from reservations where id=$1`
+	
+	_, err := m.DB.ExecContext(ctx, query, id)
+	if err != nil{
+		return err
+	}
+
+	return nil
+
+}
+
+// Update proceesed
+func (m *postgresDBRepo) UpdateProcessedForReservation(id, processed int) (error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `update reservations set processed = $1 where id = $2`
+	
+	_, err := m.DB.ExecContext(ctx, query, processed, id)
+	if err != nil{
+		return err
+	}
+
+	return nil
 
 }

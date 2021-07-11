@@ -76,12 +76,46 @@
                         value="{{$res.Phone}}"
                     />
                     </div>
-                    <input type="submit" class="btn btn-success mt-5 mb-5" value="Save"/>
-                    <a href="/admin/reservations-{{$src}}" class="btn btn-warning">Cancel</a>
-                
+                    <div class="float-left  mt-5 mb-5">
+                        <input type="submit" class="btn btn-success btn-sm" value="Save"/>
+                        <a href="/admin/reservations-{{$src}}" class="btn btn-warning btn-sm">Cancel</a>
+                        <a href="#!" class="btn btn-info btn-sm" onclick="processedRes({{$res.ID}})">Mark as Processed</a>
+                    </div>
+                    <div class="float-right  mt-5 mb-5">
+                        <a href="#!" class="btn btn-danger btn-sm" onclick="deleteRes({{$res.ID}})">Delete</a>
+                    </div>
+                    <div class="clearfix "></div>
                 </form>
                 
             </div>
         </div>
     </div>
+{{end}}
+
+{{define "js"}}
+    {{$src := index .StringMap "src"}}
+    <script>
+        function processedRes(id){
+            console.log(id);
+            r = confirm("Are you sure?");
+            console.log(r);
+            if (r){
+            console.log("/admin/process-reservation/{{$src}}/" + id);
+                window.location.href = "/admin/process-reservation/{{$src}}/" + id ; 
+            }
+
+        }
+
+        function deleteRes(id){
+            console.log(id);
+            r = confirm("Are you sure?");
+            console.log(r);
+            if (r){
+            console.log("/admin/process-reservation/{{$src}}/" + id);
+                window.location.href = "/admin/delete-reservation/{{$src}}/" + id ; 
+            }
+
+        }
+    </script>
+
 {{end}}

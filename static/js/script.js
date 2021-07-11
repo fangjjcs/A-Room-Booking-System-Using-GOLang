@@ -78,3 +78,16 @@ function Prompt() {
 }
 
 
+// function processedRes(id){
+//   console.log(id);
+//   attention.custom({
+//       icon: 'warning',
+//       msg: 'Are you sure?',
+//       callback: function (result){
+//           if (result != false) {
+//               window.location.href = "/admin/process-reservation/{{$src}}/" + id;
+//           }
+//       }
+//   })
+
+// }

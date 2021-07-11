@@ -96,8 +96,8 @@ func run() (*driver.DB, error) {
 	}
 
 	app.TemplateCache = tc
-	app.InProduction = false // change this to true when in production
-	app.UseCache = false // define whenever you allow to use cache or not
+	app.InProduction = true // change this to true when in production
+	app.UseCache = true // define whenever you allow to use cache or not
 
 	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
