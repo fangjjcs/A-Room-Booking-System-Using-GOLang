@@ -56,3 +56,27 @@ body, html{
     border-radius: 50%;
     overflow: hidden;
 }
+
+.calendar-box{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.arrow{
+    width: 30px;
+    height: 30px;
+    background-color: rgb(255, 164, 79);
+    text-align: center;
+    padding-right: 1.5rem;
+    line-height: 15px;
+}
+
+.arrow-left{
+    border-radius: 15px 0px 0px 15px;
+}
+
+.arrow-right{
+    border-radius: 0px 15px 15px 0px;
+}

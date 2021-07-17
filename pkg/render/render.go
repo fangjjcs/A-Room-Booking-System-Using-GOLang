@@ -17,6 +17,8 @@ import (
 
 var functions = template.FuncMap{
 	"humanDate": HumanDate,
+	"formatDate": FormatDate,
+	"iterate": Iterate,
 }
 var app *config.AppConfig
 var pathToTemplates = "./templates"
@@ -29,6 +31,20 @@ func NewTemplates(a *config.AppConfig) {
 // convert GO time to human friendly time string
 func HumanDate(t time.Time) string{
 	return t.Format("2006-01-02")
+}
+
+func FormatDate(t time.Time, f string) string{
+	return t.Format(f)
+}
+
+// returns a slice of ints, starting at 1, going to count
+func Iterate(count int) []int{
+	var i int
+	var items []int
+	for i=1 ; i<count+1; i++{
+		items = append(items,i)
+	}
+	return items
 }
 
 func AddDefaultData(td *models.TemplateData, r *http.Request) *models.TemplateData {

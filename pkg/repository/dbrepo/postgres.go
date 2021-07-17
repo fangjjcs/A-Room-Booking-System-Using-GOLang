@@ -3,6 +3,7 @@ package dbrepo
 import (
 	"context"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/fangjjcs/bookings-app/pkg/models"
@@ -320,4 +321,110 @@ func (m *postgresDBRepo) UpdateProcessedForReservation(id, processed int) (error
 
 	return nil
 
+}
+
+
+// Get all rooms
+func (m *postgresDBRepo) AllRooms() ([]models.Room, error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var rooms []models.Room
+
+	query := `select id, room_name, created_at, updated_at from rooms
+				order by room_name`
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil{
+		return rooms, err
+	}
+	defer rows.Close()
+
+	for rows.Next(){
+		var room models.Room
+		err := rows.Scan(
+			&room.ID,
+			&room.RoomName,
+			&room.CreatedAt,
+			&room.UpdatedAt,
+		)
+		if err != nil{
+			return rooms, err
+		}
+		rooms = append(rooms, room)
+	}
+
+	if err = rows.Err(); err != nil {
+		return rooms, err
+	}
+
+	return rooms, nil
+}
+
+// get restrictions for rooms
+func (m *postgresDBRepo) GetRestrictionsForRoomByDate(roomID int, start, end time.Time) ([]models.RoomRestrictions, error){
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	var restrictions []models.RoomRestrictions
+
+	//coalesce(reservation_id, 0) : if reservation_id is NULL which means it's a block, replace it with 0.
+	query := `select id, coalesce(reservation_id, 0), restriction_id, room_id, start_date, end_date
+			from room_restrictions where $1<end_date and $2 >= start_date and room_id = $3`
+
+	rows, err := m.DB.QueryContext(ctx, query,start, end, roomID)
+	if err != nil{
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next(){
+		var r models.RoomRestrictions
+		err := rows.Scan(
+			&r.ID,
+			&r.ReservationID,
+			&r.RestrictionID,
+			&r.RoomID,
+			&r.StartDate,
+			&r.EndDate,
+		)
+		if err != nil{
+			return nil, err
+		}
+		restrictions = append(restrictions, r)
+	}
+	if err = rows.Err(); err!=nil{
+		return nil, err
+	}
+	return restrictions, nil
+}
+
+
+func (m *postgresDBRepo) InsertBlockForRoom(id int, startDate time.Time) error{
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `insert into room_restrictions (start_date, end_date, room_id, restriction_id
+		, created_at, updated_at) values ($1, $2, $3, $4, $5, $6)`
+
+	_, err := m.DB.ExecContext(ctx, query, startDate, startDate.AddDate(0,0,1), id, 2, time.Now(), time.Now())
+	if err!= nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func (m *postgresDBRepo) DeleteBlockByID(id int) error{
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `delete from room_restrictions where id = $1`
+	_, err := m.DB.ExecContext(ctx, query, id)
+	if err!= nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }

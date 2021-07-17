@@ -16,6 +16,9 @@
                 <strong>Room : </strong>{{$res.Room.RoomName}}
                 <form method="post" action="/admin/reservations/{{$src}}/{{$res.ID}}" novalidate>
                     <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+                    <input type="hidden" name="year" value="{{index .StringMap "year"}}">
+                    <input type="hidden" name="month" value="{{index .StringMap "month"}}">
+
                     <div class="form-group mt-3">
                     <label for="first_name">First Name</label>
                     {{with .Form.Error.Get "first_name"}}
@@ -78,8 +81,15 @@
                     </div>
                     <div class="float-left  mt-5 mb-5">
                         <input type="submit" class="btn btn-success btn-sm" value="Save"/>
-                        <a href="/admin/reservations-{{$src}}" class="btn btn-warning btn-sm">Cancel</a>
-                        <a href="#!" class="btn btn-info btn-sm" onclick="processedRes({{$res.ID}})">Mark as Processed</a>
+                        {{if eq $src "cal"}}
+                            <a href="#!" onclick="window.history.go(-1)" class="btn btn-warning btn-sm">Cancel</a>
+                        {{else}}
+                            <a href="/admin/reservations-{{$src}}" class="btn btn-warning btn-sm">Cancel</a>
+                        {{end}}
+
+                        {{if eq $res.Processed 0}}
+                            <a href="#!" class="btn btn-info btn-sm" onclick="processedRes({{$res.ID}})">Mark as Processed</a>
+                        {{end}}
                     </div>
                     <div class="float-right  mt-5 mb-5">
                         <a href="#!" class="btn btn-danger btn-sm" onclick="deleteRes({{$res.ID}})">Delete</a>
@@ -101,7 +111,9 @@
             console.log(r);
             if (r){
             console.log("/admin/process-reservation/{{$src}}/" + id);
-                window.location.href = "/admin/process-reservation/{{$src}}/" + id ; 
+                window.location.href = "/admin/process-reservation/{{$src}}/" 
+                + id
+                + "/do?y={{index .StringMap "year"}}&m={{index .StringMap "month"}}" ; 
             }
 
         }
@@ -112,7 +124,9 @@
             console.log(r);
             if (r){
             console.log("/admin/process-reservation/{{$src}}/" + id);
-                window.location.href = "/admin/delete-reservation/{{$src}}/" + id ; 
+                window.location.href = "/admin/delete-reservation/{{$src}}/"
+                + id
+                + "/do?y={{index .StringMap "year"}}&m={{index .StringMap "month"}}"; 
             }
 
         }
