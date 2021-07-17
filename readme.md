@@ -9,6 +9,14 @@ This is a repository for my bookings and reservation project.
 - Uses [go-simple-mail](https://github.com/xhit/go-simple-mail) & mailhog
 - Uses Postgres/DBeaver
 - Uses [Buffalo(soda)](https://gobuffalo.io/en/docs/db/migrations) for table migrations
+
+</br>
+
+migrate table
+```bash=
+soda migrate
+```
+
 </br>
 
 start mail server
@@ -20,5 +28,6 @@ brew services start mailhog
 
 start web server
 ```bash=
-go build -o bookings cmd/web/*.go && ./bookings
+go build -o bookings cmd/web/*.go
+./bookings -dbhost=localhost -dbname= -dbuser= -dbport= -cache= -production=
 ```
