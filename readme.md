@@ -1,5 +1,11 @@
 # Bookings and Reservations System
 
+<img width="1279" alt="screenshot" src="https://user-images.githubusercontent.com/33279791/126778592-c3664ae0-2436-468e-bee0-c66583e59d0d.png">
+
+demo vedio
+https://drive.google.com/file/d/12pndL436i3igD9vb0p-VOoLtduYIvoiY/view?usp=sharing
+
+
 This is a repository for my bookings and reservation project.
 
 - Biult in Go version 1.16
