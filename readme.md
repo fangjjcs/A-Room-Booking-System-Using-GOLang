@@ -1,12 +1,15 @@
 
-# Bookings and Reservations System
+# A Room Booking System Using GOLang
 
 <img width="1279" alt="screenshot" src="https://user-images.githubusercontent.com/33279791/126778592-c3664ae0-2436-468e-bee0-c66583e59d0d.png">
 
 #### Client
 <img width="1000" alt="screenshot" src="https://user-images.githubusercontent.com/33279791/127741362-7f8e9cdb-a409-4b33-98bb-6f033fed9a1a.png">
 
-demo vedio
+#### Admin Back-end
+<img width="1000" alt="screenshot" src="https://user-images.githubusercontent.com/33279791/127741878-01c9c2ed-3533-437c-8c42-51106b996248.png">
+
+#### demo vedio
 https://drive.google.com/file/d/12pndL436i3igD9vb0p-VOoLtduYIvoiY/view?usp=sharing
 
 
