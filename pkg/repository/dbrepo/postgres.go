@@ -13,6 +13,7 @@ func (m *postgresDBRepo) AllUsers() bool{
 	return true
 }
 
+// InsertReservations inserts reservation
 func (m *postgresDBRepo) InsertReservations(res models.Reservations) (int, error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -40,7 +41,7 @@ func (m *postgresDBRepo) InsertReservations(res models.Reservations) (int, error
 	return newID, nil
 }
 
-// Insert a room restriction into database
+// InsertRoomRestriction inserts a room restriction into database
 func (m *postgresDBRepo) InsertRoomRestriction(res models.RoomRestrictions) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -67,7 +68,7 @@ func (m *postgresDBRepo) InsertRoomRestriction(res models.RoomRestrictions) erro
 }
 
 
-// Search Availability
+// SearchAvailabilityByDatesAndRoomID search availability by room id
 func (m *postgresDBRepo) SearchAvailabilityByDatesAndRoomID(start, end time.Time, roomID int) (bool,error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -90,7 +91,7 @@ func (m *postgresDBRepo) SearchAvailabilityByDatesAndRoomID(start, end time.Time
 	return false, nil
 }
 
-
+// SearchAvailibilityForAllRooms handles room availability by dates
 func (m *postgresDBRepo) SearchAvailibilityForAllRooms(start, end time.Time) ([]models.Room, error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -120,7 +121,7 @@ func (m *postgresDBRepo) SearchAvailibilityForAllRooms(start, end time.Time) ([]
 	return rooms, nil
 }
 
-// Get user information by user ID
+// GetUserByID gets user information by user ID
 func (m *postgresDBRepo) GetUserByID(id int) (models.User, error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -138,7 +139,7 @@ func (m *postgresDBRepo) GetUserByID(id int) (models.User, error){
 	return u, nil
 }
 
-// Update user information
+// UpdateUser updates user information
 func (m *postgresDBRepo) UpdateUser(u models.User) (error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -153,7 +154,7 @@ func (m *postgresDBRepo) UpdateUser(u models.User) (error){
 	return nil
 }
 
-// Get user id by login info
+// Authenticate validates login information
 func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -181,7 +182,7 @@ func (m *postgresDBRepo) Authenticate(email, testPassword string) (int, string, 
 
 }
 
-// Admin - returns a slice of all reservations
+// AllReservations returns a slice of all reservations
 func (m *postgresDBRepo) AllReservations() ([]models.Reservations, error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -213,7 +214,7 @@ func (m *postgresDBRepo) AllReservations() ([]models.Reservations, error){
 }
 
 
-// Admin - returns a slice of all NEW(processed=0) reservations
+// AllNewReservations returns a slice of all NEW(processed=0) reservations
 func (m *postgresDBRepo) AllNewReservations() ([]models.Reservations, error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -246,7 +247,7 @@ func (m *postgresDBRepo) AllNewReservations() ([]models.Reservations, error){
 }
 
 
-//Return one reservation detail by ID
+// GetReservationByID return one reservation detail by ID
 func (m *postgresDBRepo) GetReservationByID(id int) (models.Reservations, error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -274,7 +275,7 @@ func (m *postgresDBRepo) GetReservationByID(id int) (models.Reservations, error)
 
 }
 
-// update a reservation
+// UpdateReservation updates a reservation
 func (m *postgresDBRepo) UpdateReservation(u models.Reservations, id int) (error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -291,7 +292,7 @@ func (m *postgresDBRepo) UpdateReservation(u models.Reservations, id int) (error
 
 }
 
-// delete a rerservation
+// DeleteReservation delete a rerservation
 func (m *postgresDBRepo) DeleteReservation(id int) (error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -307,7 +308,7 @@ func (m *postgresDBRepo) DeleteReservation(id int) (error){
 
 }
 
-// Update proceesed
+// UpdateProcessedForReservation updates proceesed
 func (m *postgresDBRepo) UpdateProcessedForReservation(id, processed int) (error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -324,7 +325,7 @@ func (m *postgresDBRepo) UpdateProcessedForReservation(id, processed int) (error
 }
 
 
-// Get all rooms
+// AllRooms gets all rooms
 func (m *postgresDBRepo) AllRooms() ([]models.Room, error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -360,7 +361,7 @@ func (m *postgresDBRepo) AllRooms() ([]models.Room, error){
 	return rooms, nil
 }
 
-// get restrictions for rooms
+// GetRestrictionsForRoomByDate get restrictions for rooms
 func (m *postgresDBRepo) GetRestrictionsForRoomByDate(roomID int, start, end time.Time) ([]models.RoomRestrictions, error){
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -398,7 +399,7 @@ func (m *postgresDBRepo) GetRestrictionsForRoomByDate(roomID int, start, end tim
 	return restrictions, nil
 }
 
-
+// InsertBlockForRoom inserts blocks for a room
 func (m *postgresDBRepo) InsertBlockForRoom(id int, startDate time.Time) error{
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -415,6 +416,7 @@ func (m *postgresDBRepo) InsertBlockForRoom(id int, startDate time.Time) error{
 	return nil
 }
 
+// DeleteBlockByID handles deleting blocks on calendar
 func (m *postgresDBRepo) DeleteBlockByID(id int) error{
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()

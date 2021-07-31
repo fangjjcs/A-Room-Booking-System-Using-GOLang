@@ -557,7 +557,7 @@ func (m *Repository) AdminPostShowReservation(w http.ResponseWriter, r *http.Req
 
 
 
-// Marks a reservation as processed
+// AdminProcessReservation Marks a reservation as processed
 func (m *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Request){
 	
 	id, _ := strconv.Atoi(chi.URLParam(r,"id"))
@@ -586,7 +586,7 @@ func (m *Repository) AdminProcessReservation(w http.ResponseWriter, r *http.Requ
 
 }
 
-// Delete a reservation
+//AdminDeleteReservation Delete a reservation
 func (m *Repository) AdminDeleteReservation(w http.ResponseWriter, r *http.Request){
 	
 	id, _ := strconv.Atoi(chi.URLParam(r,"id"))
@@ -607,7 +607,7 @@ func (m *Repository) AdminDeleteReservation(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-
+//AdminReservationCalendar shows reservation on calendar
 func (m *Repository) AdminReservationCalendar(w http.ResponseWriter, r *http.Request){
 
 	// Assume that there is no year/month specified
@@ -711,7 +711,7 @@ func (m *Repository) AdminReservationCalendar(w http.ResponseWriter, r *http.Req
 
 }
 
-// handles post of reservation calendar (change and save)
+//AdminPostReservationCalendar handles post of reservation calendar (change and save)
 func (m *Repository) AdminPostReservationCalendar(w http.ResponseWriter, r *http.Request){
 	err := r.ParseForm()
 	if err != nil {
@@ -786,6 +786,8 @@ type JsonResponse struct{
 	STATUS    bool `json:"result"`
 	MESSAGE   string `json:"msg"`
 }
+
+
 func (m *Repository) JsonSearchAvailability(w http.ResponseWriter, r *http.Request) {
 	
 	resp := JsonResponse{
